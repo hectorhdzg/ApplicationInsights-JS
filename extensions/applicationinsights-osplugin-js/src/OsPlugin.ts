@@ -55,6 +55,7 @@ export class OsPlugin extends BaseTelemetryPlugin {
         let _getOSTimeout: ITimerHandler | null;
 
         let _fetchedFullVersion: boolean;
+        let _useCS4Fields: boolean;
         let _mergeOsNameVersion: boolean;
 
         let _eventQueue: IDelayedEvent[];
@@ -85,13 +86,11 @@ export class OsPlugin extends BaseTelemetryPlugin {
 
                     _ocConfig = ctx.getExtCfg<IOSPluginConfiguration>(identifier, defaultOSConfig);
 
-                    if (_ocConfig.mergeOsNameVersion !== undefined) {
-                        _mergeOsNameVersion = _ocConfig.mergeOsNameVersion;
-                    } else if (core.getPlugin("Sender").plugin){
-                        _mergeOsNameVersion = true;
-                    } else {
-                        _mergeOsNameVersion = false;
-                    }
+                    // Detect which channel is present to determine the correct schema fields
+                    // CS 4.0 (1DS PostChannel): ext.os.name + ext.os.ver
+                    // CS 2.x (AI Sender): ext.os.os + ext.os.osVer
+                    _useCS4Fields = !core.getPlugin("Sender").plugin;
+                    _mergeOsNameVersion = !!_ocConfig.mergeOsNameVersion;
 
                     let excludePageUnloadEvents = coreConfig.disablePageUnloadEvents || [];
                     let disableFlushOnUnload = coreConfig.disableFlushOnUnload || false;
@@ -258,12 +257,18 @@ export class OsPlugin extends BaseTelemetryPlugin {
             function _updateTeleItemWithOs(event: ITelemetryItem) {
                 if (_fetchedFullVersion && (_os || _osVer)) {
                     let extOS: any = getSetValue(getSetValue(event, strExt) as any, Extensions.OSExt);
-                    if (_mergeOsNameVersion){
+                    if (_mergeOsNameVersion) {
+                        // Deprecated: merge os name and version into single field
                         let mergedOS = (_os || "") + (_osVer ? asString(_osVer) : "");
                         setValue(extOS, "osVer", mergedOS, isString);
+                    } else if (_useCS4Fields) {
+                        // Common Schema 4.0 (1DS): ext.os.name and ext.os.ver
+                        setValue(extOS, "name", _os, isString);
+                        setValue(extOS, "ver", _osVer ? asString(_osVer) : undefined, isString);
                     } else {
-                        setValue(extOS, "osVer", _osVer);
+                        // Common Schema 2.x (Application Insights): ext.os.os and ext.os.osVer
                         setValue(extOS, "os", _os, isString);
+                        setValue(extOS, "osVer", _osVer);
                     }
                 }
             }
@@ -300,6 +305,8 @@ export class OsPlugin extends BaseTelemetryPlugin {
                 _os = null;
                 _osVer = null;
                 _fetchedFullVersion = false;
+                _useCS4Fields = false;
+                _mergeOsNameVersion = false;
                 _addedUnloadEvents = false;
                 _excludePageUnloadEvents = null;
             }

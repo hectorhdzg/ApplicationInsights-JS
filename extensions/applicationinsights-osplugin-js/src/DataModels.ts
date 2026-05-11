@@ -8,7 +8,6 @@
 /**
  * Interface for OS Plugin SDK config
  * \@maxTimeout: Maximum time to wait for the OS plugin to return the OS information
- * \@mergeOsNameVersion: Whether to merge the OS name and version into one field
  */
 export interface IOSPluginConfiguration {
     /**
@@ -17,8 +16,11 @@ export interface IOSPluginConfiguration {
      */
     maxTimeout?: number;
     /**
-     * Whether to merge the OS name and version into one field
-     * Default: undefined
+     * @deprecated This option is deprecated and will be removed in a future version.
+     * When true, merges os name and version into ext.os.osVer (e.g. "Windows11").
+     * When false or undefined, uses the correct field names based on the detected channel:
+     * - CS 4.0 (1DS PostChannel): ext.os.name + ext.os.ver
+     * - CS 2.x (AI Sender): ext.os.os + ext.os.osVer
      */
     mergeOsNameVersion?: boolean;
 }

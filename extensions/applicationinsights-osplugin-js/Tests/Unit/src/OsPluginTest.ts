@@ -42,8 +42,7 @@ export class OsPluginTest extends AITestClass {
     private _plugin: OsPlugin;
     private _core: AppInsightsCore;
     private _osConfig: IOSPluginConfiguration = {
-        maxTimeout: 6000, // set a big number to avoid timeout for test
-        mergeOsNameVersion: false
+        maxTimeout: 6000 // set a big number to avoid timeout for test
     };
     private _testChannelPlugin: TestChannelPlugin;
 
@@ -229,9 +228,8 @@ export class OsPluginTest extends AITestClass {
                 Assert.equal(this._channelSpy.called, true);
                 let telemetry = this._channelSpy.getCall(0).args[0];
                 console.log("telemetry", JSON.stringify(telemetry));
-                Assert.equal(JSON.stringify(telemetry).includes("osVer"), true, "before timeout, get os version");
-                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "OS should be changed");
-                Assert.deepEqual(telemetry.ext.os.osVer, 11, "windows 11 is detected");
+                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "ext.os.os should be set (CS 2.x)");
+                Assert.deepEqual(telemetry.ext.os.osVer, 11, "ext.os.osVer should be set (CS 2.x)");
             }
         });
 
@@ -368,8 +366,7 @@ export class OsPluginTest extends AITestClass {
                 let plugin = this._plugin;
                 config.extensionConfig = this._config.extensionConfig || {};
                 config.extensionConfig[this._plugin.identifier] = {
-                    maxTimeout: 1000,
-                    mergeOsNameVersion: false
+                    maxTimeout: 1000
                 };
                 this._core.initialize(config, [plugin, this._testChannelPlugin]);
                 let event = this._createTestEvent();
@@ -410,8 +407,7 @@ export class OsPluginTest extends AITestClass {
                 let config = this._config;
                 config.extensionConfig = config.extensionConfig || {};
                 config.extensionConfig[this._plugin.identifier] = {
-                    maxTimeout: 1000,
-                    mergeOsNameVersion: false
+                    maxTimeout: 1000
                 };
 
                 this._core.initialize(config, [this._plugin, this._testChannelPlugin]);
@@ -430,8 +426,8 @@ export class OsPluginTest extends AITestClass {
 
                 Assert.equal(this._channelSpy.called, true, "event should be sent immediately from cached OS");
                 let telemetry = this._channelSpy.getCall(0).args[0];
-                Assert.deepEqual(telemetry.ext.os.os, "Android", "cached OS should be applied to telemetry");
-                Assert.deepEqual(telemetry.ext.os.osVer, 14, "cached OS version should be applied to telemetry");
+                Assert.deepEqual(telemetry.ext.os.os, "Android", "cached OS should be applied as ext.os.os (CS 2.x)");
+                Assert.deepEqual(telemetry.ext.os.osVer, 14, "cached OS version should be applied as ext.os.osVer (CS 2.x)");
             }
         });
 
@@ -447,8 +443,7 @@ export class OsPluginTest extends AITestClass {
                 config.isStorageUseDisabled = true;
                 config.extensionConfig = config.extensionConfig || {};
                 config.extensionConfig[this._plugin.identifier] = {
-                    maxTimeout: 1000,
-                    mergeOsNameVersion: false
+                    maxTimeout: 1000
                 };
 
                 this._core.initialize(config, [this._plugin, this._testChannelPlugin]);
@@ -463,8 +458,8 @@ export class OsPluginTest extends AITestClass {
 
                 Assert.equal(this._channelSpy.called, true, "queued event should be released after lookup resolves");
                 let telemetry = this._channelSpy.getCall(0).args[0];
-                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "navigator OS should be applied");
-                Assert.deepEqual(telemetry.ext.os.osVer, 11, "navigator OS version should be applied");
+                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "navigator OS should be applied as ext.os.os (CS 2.x)");
+                Assert.deepEqual(telemetry.ext.os.osVer, 11, "navigator OS version should be applied as ext.os.osVer (CS 2.x)");
                 Assert.equal(sessionStorage.getItem("ai_osplugin"), JSON.stringify({ platform: "CachedOS", platformVersion: 99 }), "storage-disabled mode should not overwrite session storage");
             }
         });
@@ -481,8 +476,7 @@ export class OsPluginTest extends AITestClass {
                 let plugin = this._plugin;
                 config.extensionConfig = this._config.extensionConfig || {};
                 config.extensionConfig[this._plugin.identifier] = {
-                    maxTimeout: 1000,
-                    mergeOsNameVersion: false
+                    maxTimeout: 1000
                 };
                 this._core.initialize(config, [plugin, this._testChannelPlugin]);
                 let event = this._createTestEvent();
@@ -497,8 +491,8 @@ export class OsPluginTest extends AITestClass {
                 Assert.equal(this._getDbgTargets().hasPendingTimeout, false);
                 Assert.equal(this._channelSpy.called, true);
                 let telemetry = this._channelSpy.getCall(0).args[0];
-                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "OS should be changed");
-                Assert.deepEqual(telemetry.ext.os.osVer, 11, "windows 11 is detected");
+                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "ext.os.os should be set (CS 2.x)");
+                Assert.deepEqual(telemetry.ext.os.osVer, 11, "ext.os.osVer should be set (CS 2.x)");
                 let storedOs = JSON.parse(sessionStorage.getItem("ai_osplugin") || "{}");
                 QUnit.assert.equal(storedOs.platform, _platformVersion.platform, "os is stored in session storage");
                 QUnit.assert.equal(storedOs.platformVersion, 11, "os ver is stored in session storage");
@@ -508,52 +502,77 @@ export class OsPluginTest extends AITestClass {
                 Assert.equal(this._getDbgTargets().queue.length, 0);
                 Assert.equal(this._channelSpy.called, true);
                 telemetry = this._channelSpy.getCall(0).args[0];
-                Assert.equal(JSON.stringify(telemetry).includes("osVer"), true, "before timeout, get os version");
-                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "OS should be changed");
-                Assert.deepEqual(telemetry.ext.os.osVer, 11, "Windows 11 is detected");
+                Assert.deepEqual(telemetry.ext.os.os, _platformVersion.platform, "ext.os.os should be set (CS 2.x)");
+                Assert.deepEqual(telemetry.ext.os.osVer, 11, "ext.os.osVer should be set (CS 2.x)");
             }
         });
 
         this.testCase({
-            name: "OsPlugin: test merged version",
+            name: "OsPlugin: CS 4.0 fields are used with PostChannel",
             useFakeTimers: true,
             test: () => {
                 let window = getWindow();
                 let sessionStorage = window.sessionStorage;
-                QUnit.assert.ok(sessionStorage, "sessionStorage API is supported");
                 sessionStorage.clear();
-                let config = this._config;
-                let plugin = this._plugin;
-                config.extensionConfig = this._config.extensionConfig || {};
-                config.extensionConfig[this._plugin.identifier] = {
-                    maxTimeout: 1000,
-                    mergeOsNameVersion: true
+
+                // Use PostChannel instead of Sender to trigger CS 4.0 field names
+                let postChannelPlugin = new TestPostChannelPlugin();
+                let postChannelSpy = this.sandbox.spy(postChannelPlugin, 'processTelemetry');
+                let plugin = new OsPlugin();
+                let core = new AppInsightsCore();
+
+                let navigator = {
+                    userAgentData: {
+                        getHighEntropyValues: (args) => {
+                            if (args[0] === "platformVersion") {
+                                return createAsyncPromise((resolve, reject) => {
+                                    this._resolvedGetHighEntrophyPromise = resolve;
+                                    this._rejectedGetHighEntrophyPromise = reject;
+                                });
+                            }
+                        }
+                    }
+                } as CustomNavigator;
+                this.setNavigator(navigator, true);
+
+                let config: ITestConfig = {
+                    instrumentationKey: 'testIkey',
+                    endpointUrl: 'testEndpoint',
+                    extensionConfig: {}
                 };
-                this._core.initialize(config, [plugin, this._testChannelPlugin]);
+                config.extensionConfig![plugin.identifier] = {
+                    maxTimeout: 6000
+                };
+
+                core.initialize(config, [plugin, postChannelPlugin]);
+
                 let event = this._createTestEvent();
-                this._core.track(event);
-                Assert.equal(this._channelSpy.called, false);
-                Assert.equal(this._getDbgTargets().hasPendingTimeout, true);
-                Assert.equal(this._getDbgTargets().queue.length, 1);
-                Assert.equal(this._getDbgTargets().queue[0].item.name, event.name);
+                core.track(event);
+                Assert.equal(postChannelSpy.called, false, "event should be queued");
+
                 this._resolveHighEntropy(_platformVersion);
                 this.clock.tick(1);
-                Assert.equal(this._getDbgTargets().queue.length, 0);
-                Assert.equal(this._getDbgTargets().hasPendingTimeout, false);
-                Assert.equal(this._channelSpy.called, true);
-                let telemetry = this._channelSpy.getCall(0).args[0];
-                Assert.deepEqual(telemetry.ext.os.osVer, "Windows11", "windows 11 is detected");
+
+                Assert.equal(postChannelSpy.called, true, "event should be sent after OS resolved");
+                let telemetry = postChannelSpy.getCall(0).args[0];
+
+                // Verify CS 4.0 compliant field names
+                Assert.deepEqual(telemetry.ext.os.name, _platformVersion.platform, "ext.os.name should be set for PostChannel");
+                Assert.deepEqual(telemetry.ext.os.ver, "11", "ext.os.ver should be set as string for PostChannel");
+                Assert.equal(telemetry.ext.os.osVer, undefined, "ext.os.osVer should NOT be set for PostChannel");
+                Assert.equal(telemetry.ext.os.os, undefined, "ext.os.os should NOT be set for PostChannel");
+
                 let storedOs = JSON.parse(sessionStorage.getItem("ai_osplugin") || "{}");
-                QUnit.assert.equal(storedOs.platform, _platformVersion.platform, "os is stored in session storage");
-                QUnit.assert.equal(storedOs.platformVersion, 11, "os ver is stored in session storage");
-                // send another event
-                this._core.track(event);
-                Assert.equal(this._getDbgTargets().hasPendingTimeout, false);
-                Assert.equal(this._getDbgTargets().queue.length, 0);
-                Assert.equal(this._channelSpy.called, true);
-                telemetry = this._channelSpy.getCall(0).args[0];
-                Assert.equal(JSON.stringify(telemetry).includes("osVer"), true, "before timeout, get os version");
-                Assert.deepEqual(telemetry.ext.os.osVer, "Windows11", "windows 11 is detected");
+                Assert.equal(storedOs.platform, _platformVersion.platform, "os is stored in session storage");
+                Assert.equal(storedOs.platformVersion, 11, "os ver is stored in session storage");
+
+                // Second event should also use CS 4.0 fields
+                core.track(event);
+                telemetry = postChannelSpy.getCall(1).args[0];
+                Assert.deepEqual(telemetry.ext.os.name, _platformVersion.platform, "second event should also use ext.os.name");
+                Assert.deepEqual(telemetry.ext.os.ver, "11", "second event should also use ext.os.ver");
+
+                core.unload(false);
             }
         });
     }
@@ -592,6 +611,53 @@ class TestChannelPlugin implements IChannelControls {
     public processTelemetry;
 
     public identifier = "Sender";
+
+    setNextPlugin(next: ITelemetryPlugin) {
+        // no next setup
+    }
+
+    public priority: number = 1001;
+
+    public initialize = (config: IConfiguration) => {
+    }
+
+    private _processTelemetry(env: ITelemetryItem) {
+    }
+}
+
+class TestPostChannelPlugin implements IChannelControls {
+
+    public isFlushInvoked = false;
+    public isUnloadInvoked = false;
+    public isTearDownInvoked = false;
+    public isResumeInvoked = false;
+    public isPauseInvoked = false;
+
+    constructor() {
+        this.processTelemetry = this._processTelemetry.bind(this);
+    }
+    public pause(): void {
+        this.isPauseInvoked = true;
+    }
+
+    public resume(): void {
+        this.isResumeInvoked = true;
+    }
+
+    public teardown(): void {
+        this.isTearDownInvoked = true;
+    }
+
+    flush(async?: boolean, callBack?: () => void): void {
+        this.isFlushInvoked = true;
+        if (callBack) {
+            callBack();
+        }
+    }
+
+    public processTelemetry;
+
+    public identifier = "PostChannel";
 
     setNextPlugin(next: ITelemetryPlugin) {
         // no next setup
