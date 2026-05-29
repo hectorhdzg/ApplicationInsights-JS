@@ -22,16 +22,16 @@
         modules.add("qunit");
         modules.add("magic-string");
 
-        modules.add("@microsoft/ai-test-framework");
-        
-        var testModule = modules.add("Tests/Unit/src/Es5RollupTests", "./Unit/dist/es5rolluptests.js");
-        testModule.run = function (tests) {
-            console && console.log("Starting tests");
-            QUnit.start();
-            tests.runTests();
-        };
+        loadCommonModules(modules, function () {
+            var testModule = modules.add("Tests/Unit/src/Es5RollupTests", "./Unit/dist/es5rolluptests.js");
+            testModule.run = function (tests) {
+                console && console.log("Starting tests");
+                QUnit.start();
+                tests.runTests();
+            };
 
-        modules.run();
+            modules.run();
+        }, false);
     </script>
 </head>
 
