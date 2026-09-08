@@ -10,16 +10,15 @@
  *   parentheses are required so that older versions of Rollup / Webpack /
  *   Terser still tree-shake the constants, so they must NOT be removed.
  *   However, newer bundlers such as Rolldown (Vite 8) are stricter and reject
- *   invalid annotations on primitive literals as well as the spaced form,
- *   emitting `[INVALID_ANNOTATION]` warnings. This task removes annotations
- *   from literals, where they have no effect, and rewrites valid annotations
- *   to the canonical, flush-against-the-paren form `(/*#__PURE__*\/...)`.
+ *   annotations that do not apply to call or new expressions. This task parses
+ *   the generated output, removes invalid annotations, and rewrites valid
+ *   annotations to the canonical form `(/*#__PURE__*\/...)`.
  *
  *   The `rollup.base.config.js` `fixPureAnnotations()` plugin already performs
  *   this canonicalization for the rollup-bundled `dist/es5` / `browser` CDN
  *   outputs (the package `main` entry). This task closes the gap for the
  *   un-bundled `dist-es5` tsc output (the package `module` entry) which never
- *   passes through rollup. See issue #2736.
+ *   passes through rollup. See issues #2736, #2763, and #2764.
  *
  * Usage in gruntfile:
  *   grunt.loadTasks("./tools/grunt-tasks");
@@ -51,26 +50,32 @@ module.exports = function (grunt) {
             var filesChecked = 0;
             var filesChanged = 0;
 
-            files.forEach(function (filepath) {
-                if (!grunt.file.exists(filepath)) {
-                    return;
-                }
+            try {
+                files.forEach(function (filepath) {
+                    if (!grunt.file.exists(filepath)) {
+                        return;
+                    }
 
-                // Skip source map files - only the emitted JavaScript is rewritten.
-                if (filepath.indexOf(".map") !== -1) {
-                    return;
-                }
+                    // Skip source map files - only the emitted JavaScript is rewritten.
+                    if (filepath.indexOf(".map") !== -1) {
+                        return;
+                    }
 
-                filesChecked++;
+                    filesChecked++;
 
-                var content = grunt.file.read(filepath);
-                var normalized = canonicalizePureAnnotations(content);
+                    var content = grunt.file.read(filepath);
+                    var normalized = canonicalizePureAnnotations(content);
 
-                if (normalized !== content) {
-                    grunt.file.write(filepath, normalized);
-                    filesChanged++;
-                }
-            });
+                    if (normalized !== content) {
+                        grunt.file.write(filepath, normalized);
+                        filesChanged++;
+                    }
+                });
+            } catch (err) {
+                grunt.log.error("Failed to normalize PURE annotations: " + err);
+                done(false);
+                return;
+            }
 
             grunt.log.ok("Canonicalized PURE annotations: checked " + filesChecked + " file(s), updated " + filesChanged + " file(s).");
             done();
