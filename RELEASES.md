@@ -4,13 +4,14 @@
 
 <!-- ## Unreleased Changes -->
 
-## 3.4.4 (August 13th, 2026)
+## 3.4.4 (September 8th, 2026)
 
-This is a maintenance release for the 3.4.x version line containing build tooling and dependency security hardening plus a test reliability fix. There are no runtime changes to the published packages. The `@microsoft/1ds-post-js` channel is numbered 4.4.4 and requires v3.4.4.
+This is a maintenance release for the 3.4.x version line containing build tooling and dependency security hardening plus a test reliability fix. There are no SDK API or behavioral changes. The `@microsoft/1ds-post-js` channel is numbered 4.4.4 and requires v3.4.4.
 
 ### Significant Changes (since 3.4.3)
 
-- **Dependency Security Hardening**: Upgraded the Rush engine to 5.178.1 and pnpm to 10.34.5 to pull in patched transitive build dependencies (`tar`, `brace-expansion`, `ip-address`), and resolved the remaining `npm audit` findings. These are build/tooling changes and do not affect the published runtime packages.
+- **Dependency Security Hardening**: Upgraded the Rush engine to 5.178.1 and pnpm to 10.34.5, refreshed the dependency lockfile, and pulled in patched transitive build dependencies (`tar`, `brace-expansion`, `decode-uri-component`, `ip-address`). API Extractor remains on the latest Node.js 18-compatible release. These are build/tooling changes and do not affect the published runtime code.
+- **Audit Status**: All actionable audit findings are resolved. One high-severity advisory remains in Puppeteer's development-only `extract-zip` dependency because no patched version is available upstream.
 
 ### Changelog
 
