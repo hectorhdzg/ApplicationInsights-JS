@@ -10,10 +10,10 @@
  *   parentheses are required so that older versions of Rollup / Webpack /
  *   Terser still tree-shake the constants, so they must NOT be removed.
  *   However, newer bundlers such as Rolldown (Vite 8) are stricter and reject
- *   the spaced form, emitting `[INVALID_ANNOTATION]` warnings. This task
- *   rewrites the spaced form back to the canonical, flush-against-the-paren
- *   form `(/*#__PURE__*\/...)` which is accepted by every bundler while still
- *   preserving the tree-shaking behaviour.
+ *   invalid annotations on primitive literals as well as the spaced form,
+ *   emitting `[INVALID_ANNOTATION]` warnings. This task removes annotations
+ *   from literals, where they have no effect, and rewrites valid annotations
+ *   to the canonical, flush-against-the-paren form `(/*#__PURE__*\/...)`.
  *
  *   The `rollup.base.config.js` `fixPureAnnotations()` plugin already performs
  *   this canonicalization for the rollup-bundled `dist/es5` / `browser` CDN
@@ -35,7 +35,7 @@
 module.exports = function (grunt) {
     "use strict";
 
-    grunt.registerMultiTask("fix-pure", "Canonicalize PURE tree-shaking annotations in dist-es5 output", function () {
+    grunt.registerMultiTask("fix-pure", "Normalize PURE tree-shaking annotations in dist-es5 output", function () {
         var files = this.filesSrc;
         var done = this.async();
 

@@ -7,9 +7,9 @@
  * parentheses are required so that older versions of Rollup / Webpack / Terser
  * still tree-shake the constants, so they must NOT be removed. However, newer
  * bundlers such as Rolldown (Vite 8) are stricter and reject the spaced form,
- * emitting `[INVALID_ANNOTATION]` warnings. Canonicalizing to the flush form
- * `(/*#__PURE__*\/...)` is accepted by every bundler while preserving the
- * tree-shaking behaviour.
+ * emitting `[INVALID_ANNOTATION]` warnings. This helper removes annotations
+ * from primitive literals, where they have no effect, and canonicalizes valid
+ * annotations to the flush form `(/*#__PURE__*\/...)`.
  *
  * This single source of truth is shared by:
  *   - rollup.base.config.js `fixPureAnnotations()` (rollup-bundled dist/es5),
@@ -25,13 +25,20 @@
 // PURE / @__PURE__ annotation, capturing the leading marker char (# or @).
 export var PURE_COMMENT_CANONICALIZE = /\(\s*\/\*\s*([#@])__PURE__\s*\*\/\s*/g;
 
+// PURE annotations are only valid on call and new expressions. Primitive
+// literals are already side-effect free, so the annotation has no effect and
+// strict bundlers such as Rolldown report it as invalid.
+export var PURE_LITERAL_ANNOTATION = /\/\*\s*[#@]__PURE__\s*\*\/(?=\s*(?:null\b|true\b|false\b|["']|[-+]?(?:\d|\.\d)))/g;
+
 /**
- * Rewrites any spaced PURE annotation forms in the supplied code to the
- * canonical flush-against-the-paren form. Returns the (possibly unchanged)
- * code string.
+ * Removes invalid literal annotations and rewrites spaced valid annotations
+ * to the canonical flush-against-the-paren form. Returns the (possibly
+ * unchanged) code string.
  * @param {string} code
  * @returns {string}
  */
 export function canonicalizePureAnnotations(code) {
-    return code.replace(PURE_COMMENT_CANONICALIZE, "(/*$1__PURE__*/");
+    return code
+        .replace(PURE_LITERAL_ANNOTATION, "")
+        .replace(PURE_COMMENT_CANONICALIZE, "(/*$1__PURE__*/");
 }
