@@ -26,6 +26,11 @@ overrides:
 
 pnpmfileChecksum: sha256-E1T7OJ3DLTjpDqf4RdJzK9VDtAxgm4gDEQCLYdHD8nI=
 
+patchedDependencies:
+  decode-uri-component@0.5.0:
+    hash: 39f557ceb617b1046917a1daa0901f3ddff56ac700abf88a8824a4c14686756d
+    path: ../config/rush/patches/decode-uri-component@0.5.0.patch
+
 importers:
 
   .:
@@ -4373,7 +4378,7 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  decode-uri-component@0.5.0: {}
+  decode-uri-component@0.5.0(patch_hash=39f557ceb617b1046917a1daa0901f3ddff56ac700abf88a8824a4c14686756d): {}
 
   deep-is@0.1.4: {}
 
@@ -5728,7 +5733,7 @@ snapshots:
   source-map-resolve@0.6.0:
     dependencies:
       atob: 2.1.2
-      decode-uri-component: 0.5.0
+      decode-uri-component: 0.5.0(patch_hash=39f557ceb617b1046917a1daa0901f3ddff56ac700abf88a8824a4c14686756d)
 
   source-map@0.6.1: {}
 
