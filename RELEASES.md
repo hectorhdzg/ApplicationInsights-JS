@@ -6,15 +6,22 @@
 
 ## 3.4.4 (September 8th, 2026)
 
-This is a maintenance release for the 3.4.x version line containing build tooling and dependency security hardening plus a test reliability fix. There are no SDK API or behavioral changes. The `@microsoft/1ds-post-js` channel is numbered 4.4.4 and requires v3.4.4.
+This is a maintenance release for the 3.4.x version line containing runtime reliability and bundler compatibility fixes, build tooling and dependency security hardening, documentation corrections, and a test reliability fix. There are no SDK API changes. The `@microsoft/1ds-post-js` channel is numbered 4.4.4 and requires v3.4.4.
 
 ### Significant Changes (since 3.4.3)
 
+- **ESM XHR Instrumentation**: Fixed tree shaking of the XHR capability check so automatic XHR instrumentation is preserved in ESM bundles.
+- **Vite 8 and Rolldown Compatibility**: Normalized generated PURE annotations by expression so invalid annotations on primitive literals no longer produce warnings, while valid call and `new` expression annotations remain tree-shakable.
+- **OpenTelemetry Async Error Propagation**: Fixed `startActiveSpan()` so promise rejections from asynchronous callbacks propagate to callers instead of being swallowed.
 - **Dependency Security Hardening**: Upgraded the Rush engine to 5.178.1 and pnpm to 10.34.5, refreshed the dependency lockfile, and pulled in patched transitive build dependencies (`tar`, `brace-expansion`, `decode-uri-component`, `ip-address`). API Extractor remains on the latest Node.js 18-compatible release. These are build/tooling changes and do not affect the published runtime code.
-- **Audit Status**: All actionable audit findings are resolved. One high-severity advisory remains in Puppeteer's development-only `extract-zip` dependency because no patched version is available upstream.
+- **Audit Status**: All audit findings are resolved, including the Puppeteer `extract-zip` advisory through a maintained compatible package replacement.
 
 ### Changelog
 
+- #2768 Fix ESM XHR instrumentation tree shaking
+- #2767 docs: fix Offline Channel setup example
+- #2766 fix: normalize PURE annotations for Vite 8 and Rolldown
+- #2757 fix(otel): propagate promise rejection from startActiveSpan async callback
 - #2755 Bump Rush 5.178.1 and pnpm 10.34.5
 - #2754 fix(test): stabilize flaky SpanLifeCycle custom endTime test
 - #2753 fix(deps): remediate npm audit vulnerabilities and add local Puppeteer Edge fallback
