@@ -10,7 +10,7 @@
         "azure"
     ],
     "scripts": {
-        "postinstall": "node common/scripts/install-run-rush-silent.js update",
+        "postinstall": "node common/scripts/install-run-rush-silent.js update && npm run remediate-toolchain",
         "build": "node common/scripts/install-run-rush.js rebuild --verbose",
         "rebuild": "npm run build && npm run api-docs",
         "testx": "rush test --verbose",
@@ -21,7 +21,8 @@
         "lint-fix": "npm run ai-restore && grunt lint-fix",
         "perftest": "node common/scripts/install-run-rush.js perftest --verbose",
         "rollupes5": "grunt rollupes5",
-        "rupdate": "node common/scripts/install-run-rush.js update --recheck --purge --full",
+        "rupdate": "node common/scripts/install-run-rush.js update --recheck --purge --full && npm run remediate-toolchain",
+        "remediate-toolchain": "node ./tools/remediateRushToolchain.js",
         "serve": "grunt serve",
         "setVersion": "node ./tools/release-tools/setVersion.js",
         "purge": "node common/scripts/install-run-rush.js purge",
